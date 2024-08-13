@@ -1,0 +1,28 @@
+FROM ubuntu:latest
+WORKDIR /workspace
+COPY connectors/*.yaml connectors/
+COPY dataflow.yaml .
+ENV PATH "$PATH:/root/.fluvio/bin"
+ENV PATH "$PATH:/root/.fvm/bin"
+
+RUN apt-get update && \
+    apt-get install -y \
+    curl unzip cargo rustup
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh && \
+    rustup update 
+
+
+    
+RUN curl -fsS https://hub.infinyon.cloud/install/install.sh?ctx=dc | bash && \
+    echo 'source "${HOME}/.fvm/env"' >> ~/.bashrc && \
+    fvm install sdf-beta1
+
+RUN fluvio cluster start 
+
+RUN cd /workspace/connectors/ && \
+    
+    
+
+
+
