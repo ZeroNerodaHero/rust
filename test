@@ -7,10 +7,16 @@ ENV PATH "$PATH:/root/.fvm/bin"
 
 RUN apt-get update && \
     apt-get install -y \
-    curl unzip cargo rustup
+    curl unzip cargo build-essential pkg-config libssl-dev && \
+    apt-get install -y rustup rustc
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh && \
-    rustup update 
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
+    # Add Rust to the PATH for the current session
+    export PATH="$HOME/.cargo/bin:$PATH" && \
+    # Install a specific version of Rust
+    rustup install 1.80.0 && \
+    rustup default 1.80.0
+RUN rustup target add wasm32-wasip1
 
 
     
@@ -21,7 +27,12 @@ RUN curl -fsS https://hub.infinyon.cloud/install/install.sh?ctx=dc | bash && \
 RUN fluvio cluster start 
 
 RUN cd /workspace/connectors/ && \
+    cdk hub download infinyon/http-source@0.3.8 && \
+    cdk deploy start --ipkg infinyon-http-source-0.3.8.ipkg -c license-connector.yaml && \
+    cdk deploy start --ipkg infinyon-http-source-0.3.8.ipkg -c car-connector.yaml
     
+RUN cd /workspace/connectors/ && \
+
     
 
 
